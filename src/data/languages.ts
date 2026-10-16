@@ -3,11 +3,11 @@ import type { LanguageRecord } from "../types.js";
 /**
  * Seed language registry.
  *
- * VERIFIED entries have validated ISO 639-3 codes and documented classification.
- * UNVERIFIED entries are names that were investigated and NOT confirmed as
- * distinct Nigerian languages. They are retained (flagged) so callers can
- * explain why a requested name is unavailable — they MUST NEVER be surfaced
- * as authoritative coverage.
+ * VERIFIED entries have validated ISO 639-3 codes and documented identity
+ * provenance. UNVERIFIED entries are names that were investigated and NOT
+ * confirmed as distinct Nigerian languages. They are retained (flagged) so
+ * callers can explain why a requested name is unavailable — they MUST NEVER be
+ * surfaced as authoritative coverage.
  */
 export const SEED_LANGUAGES: LanguageRecord[] = [
   {
@@ -44,15 +44,15 @@ export const SEED_LANGUAGES: LanguageRecord[] = [
     id: "tiv",
     name: "Tiv",
     iso639_3: "tiv",
-    glottocode: "tivy1234",
+    glottocode: "tivv1240",
     regions: ["Benue", "Nasarawa", "Taraba", "Plateau", "Cross River"],
     dialects: [],
     status: "verified",
     sources: [
-      "ISO 639-3 registry (tiv)",
-      "Tiv language belongs to the Benue-Congo branch of Niger-Congo; ~8M speakers (Wikipedia: Tiv people)",
+      "https://iso639-3.sil.org/code/tiv",
+      "https://glottolog.org/resource/languoid/id/tivv1240",
     ],
-    notes: "Historically (and derogatorily) recorded as 'Munchi/Munshi' by Fulani and colonial authors; that name must not be used.",
+    notes: "Use 'Tiv' as the language name; Glottolog lists 'Munshi' among alternative names.",
   },
   {
     id: "fuv",

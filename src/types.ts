@@ -41,8 +41,27 @@ export interface Translation {
   targetLocale: string;
   text: string;
   generatedBy: "provider" | "memory" | "human";
-  /** Always true for provider output; gate publication on review. */
+  /** Identifies the provider that produced the original machine draft. */
+  providerId?: string;
+  /** Always true for provider/memory output; false only after validated review. */
   requiresReview: boolean;
+  reviewerId?: string;
+  reviewApprovalId?: string;
+  reviewedAt?: string;
+}
+
+export interface TranslationReviewValidationRequest {
+  reviewerId: string;
+  approvalId: string;
+  sourceText: string;
+  sourceLocale: string;
+  targetLocale: string;
+  translatedText: string;
+}
+
+/** Host implementation must verify an authenticated editor and durable approval record. */
+export interface TranslationReviewValidator {
+  isAuthorizedTranslationReview(input: TranslationReviewValidationRequest): boolean;
 }
 
 /** Replaceable translation provider contract. Implementations must be stateless per call. */
@@ -68,7 +87,26 @@ export interface CommunitySubmission {
   reviewNotes?: string;
 }
 
+export interface CommunityReviewAuthorizationRequest {
+  reviewerId: string;
+  submissionId: string;
+  languageId: string;
+  kind: CommunitySubmission["kind"];
+  decision: "approved" | "rejected";
+}
+
+/** Host implementation must map reviewerId to an authenticated, authorized editor. */
+export interface CommunityReviewAuthorizer {
+  isAuthorizedReviewer(input: CommunityReviewAuthorizationRequest): boolean;
+}
+
+/** Host applications must authenticate/authorize reviewers before review(). */
 export interface ReviewWorkflow {
   submit(submission: CommunitySubmission): Promise<CommunitySubmission>;
-  review(submissionId: string, decision: "approved" | "rejected", reviewer: string, notes?: string): Promise<CommunitySubmission>;
+  review(
+    submissionId: string,
+    decision: "approved" | "rejected",
+    reviewer: string,
+    notes?: string,
+  ): Promise<CommunitySubmission>;
 }
