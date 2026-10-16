@@ -2,29 +2,25 @@
 
 ## Status and scope
 
-This branch documents an integration boundary; it does not change the library API or add a runtime adapter. NairaLeap's current integration branch is `remRADAR/NairaLeap:integration/nairaleap-plugin-vibe`. It adds an accessible language-status selector to the portal/editorial navigation, with English active and Hausa, Igbo, Yoruba, and Tiv disabled pending complete human-reviewed interface dictionaries.
+This branch documents an integration boundary; it does not add a runtime package dependency or application adapter. NairaLeap's existing integration branch adds an accessible language-status selector in the portal/editorial navigation. English is the only enabled locale; Hausa, Igbo, Yoruba, and Tiv remain pending until complete, human-reviewed NairaLeap interface dictionaries exist.
 
-The NairaLeap frontend does **not** consume this package as a dependency. The UI does not translate content or offer a glossary. This is deliberate: the package supplies language records and translation interfaces, not complete approved NairaLeap dictionaries or a production provider.
+The NairaLeap frontend does **not** consume this package. The selector does not translate site content or provide a glossary. This is deliberate: the package has language records and provider/review contracts, not complete approved dictionaries or a production translation provider.
 
-## API and adapter guidance
+## API and safety boundaries
 
-- `LanguageRegistry` can resolve language records; record identity is not equivalent to translation availability.
-- `TranslationService` requires an injected `TranslationProvider`; no production provider is included.
-- Do not interpret `verified` language identity as a verified translation catalog.
-- Preserve English fallback and keep unsupported/incomplete locales disabled.
-- Do not translate user-entered names, addresses, IDs, or free text automatically.
-- A React adapter, persistence, glossary, and application dictionaries are future work and require separate review.
+- `LanguageRegistry.resolve()` uses the shared strict locale parser for simple language/script/region forms such as `yo-NG`, `ig-Latn-NG`, and `ha_Latn`; unknown CLDR script/region subtags (for example `yo-XX` or `yo-Abcd`), malformed tags, and unsupported base languages return `undefined`. It intentionally rejects unimplemented BCP-47 variants/extensions instead of guessing.
+- ISO 639-1 aliases `ha`, `ig`, and `yo` resolve to seeded ISO 639-3 records. Language identity/`verified` status is **not** equivalent to translation availability.
+- `TranslationService` requires an injected `TranslationProvider`; machine output and memory hits are normalized to review-required drafts. No real provider is included.
+- `TranslationMemory.storeReviewed()` requires a host `TranslationReviewValidator` to authenticate the editor and validate a durable approval for the exact text and locale pair. `CommunityReviewWorkflow.review()` requires a trusted `CommunityReviewAuthorizer`. The package does not authenticate users or persist audit records.
+- Tiv’s verified seed identity uses ISO 639-3 `tiv` and Glottocode `tivv1240`; this is not a claim of complete dictionary or regional coverage. Galla, Doma, and Gidi remain unverified and are not counted as coverage.
+- Keep English fallback; do not translate user-entered names, addresses, IDs, or free text automatically. Critical legal, financial, consent, identity, and service terminology requires human review.
 
-PR [#7](https://github.com/remRADAR/nigerian-language-engine/pull/7) contains a proposed locale alias fix (ISO 639-1 `ha`, `ig`, `yo` to seeded ISO 639-3 `hau`, `ibo`, `yor`). It remains a separate open review; do not assume it is merged. Add tests for all aliases, whitespace, mixed case, underscore tags, and empty input before relying on those behaviors.
+## Future integration work
 
-## Security/configuration
+React adapters, persistence, searchable glossary/dictionary, complete human-reviewed NairaLeap resources, preference persistence, native-speaker review, and runtime package integration remain unimplemented. Enable no non-English locale until coverage and fallback behavior are verified across shared navigation, service portal, and supported interface text.
 
-No new environment variables or credentials are required for this documentation/UI foundation. Do not add client-side provider secrets or live translation requests. Critical financial, legal, consent, identity, and service terminology requires human review before enabling a locale.
+## Configuration and verification
 
-## Verification
+No new environment variables, credentials, or live translation requests are required for the UI foundation. The focused NairaLeap Cypress spec verifies English is selected and the other options are disabled; it does not prove localization or dictionary coverage.
 
-The NairaLeap Cypress spec asserts English remains selected and all non-English options are disabled. Whole-site localization, glossary behavior, provider integration, and native-speaker review are not implemented or verified.
-
-## CI and lockfile prerequisite
-
-This stacked documentation PR targets `audit/stage-2-quality-gates`, which carries the committed `package-lock.json`. The quality-gate workflow now includes that base branch as a pull-request target so a fresh `npm ci` verification can run against the lockfile.
+This stacked documentation PR targets `audit/stage-2-quality-gates`, which carries `package-lock.json`; CI includes that base as a pull-request target so `npm ci` can run. The quality-gate PR remains a prerequisite before this documentation PR can be retargeted to `main`.
