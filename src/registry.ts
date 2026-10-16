@@ -37,7 +37,13 @@ export class LanguageRegistry {
 
   /** Resolve a locale tag (e.g. "yo", "yo-NG", "yo_Latn") to a record. */
   resolve(locale: string): LanguageRecord | undefined {
-    const base = locale.toLowerCase().split(/[-_]/)[0];
-    return this.records.get(base);
+    const base = locale.trim().toLowerCase().split(/[-_]/)[0];
+    if (!base) return undefined;
+
+    // The seed records use ISO 639-3 identifiers. These explicit common locale
+    // aliases bridge ISO 639-1 tags without pretending they are ISO 639-3 codes.
+    const aliases: Record<string, string> = { ha: "hau", ig: "ibo", yo: "yor" };
+    const id = aliases[base] ?? base;
+    return this.records.get(id);
   }
 }
