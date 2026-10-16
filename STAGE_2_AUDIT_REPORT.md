@@ -16,6 +16,7 @@
 - **Changed on branch:** renamed the backing map to `entries`; safely reject empty/unknown locale tags and map the established `ha`, `ig`, `yo` locale aliases to Hausa, Igbo, and Yoruba.
 - Added `package-lock.json`, TypeScript ESLint flat config, maintained ESLint 10 / typescript-eslint development dependencies, and CI `contents: read` permission.
 - **Locally verified after changes:** `npm ci`, `npm run lint`, `npm run typecheck`, `npm test` (4 files / 18 tests), `npm run build`, and `npm audit --omit=dev --audit-level=moderate` all pass; audit reported zero production dependency vulnerabilities.
+- **Actual GitHub Actions:** PR [#7](https://github.com/remRADAR/nigerian-language-engine/pull/7), run [38878698221](https://github.com/remRADAR/nigerian-language-engine/actions/runs/38878698221), passed all workflow steps on commit `9eeef80a4c2aab19a89a259c77756e4cdf70c475`.
 
 ## Security and functional findings
 
@@ -26,4 +27,4 @@
 
 ## Status and next gate
 
-**BLOCKED** for release/integration as an authoritative translation or review service. Build/test gates now pass on the local audit branch, but no post-change GitHub Actions result exists yet. These changes require review and merge via PR; no package was published and no production system was accessed. Resolve provider-output draft enforcement and reviewer authorization before a consuming service relies on approval state.
+**BLOCKED** for release/integration as an authoritative translation or review service. Local checks and the PR's GitHub Actions pass, but provider-output draft enforcement and reviewer authorization remain unresolved. PR #7 is open for review; it has not been merged. No package was published and no production system was accessed.
