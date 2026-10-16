@@ -1,46 +1,45 @@
 # nigerian-language-engine
 
-Whole-application localization and language registry engine for Nigerian languages. TypeScript, provider-independent, independently versioned and distributable.
+Provider-independent Nigerian-language registry, locale resolution, translation workflows, dictionary submissions, and review contracts. TypeScript ESM, designed for independent reuse.
 
-## Status: ALPHA — first implementation pass (awaiting independent audit)
+## Status: ALPHA — no production provider or host identity adapter
 
-Built by Mistral Vibe as the primary implementation pass; a separate agent (Manus) audits, corrects, and finalizes. See `HANDOFF_TO_MANUS.md`.
+See `HANDOFF_TO_MANUS.md` and `NAIRALEAP_INTEGRATION.md`.
 
 ## Modules
 
 | Module | Purpose | Status |
 | --- | --- | --- |
-| `registry` | Language/dialect registry, locale resolution, verified-coverage filtering | Implemented, tested |
-| `data/languages` | Seed records with provenance; Tiv verified (ISO 639-3 `tiv`); "Galla", "Doma", "Gidi" investigated and flagged unverified with reasons | Implemented, tested |
-| `translation` | `TranslationProvider` abstraction + exact-match translation memory; machine output is always draft (requiresReview) | Implemented, tested |
-| `i18n` | Resource bundles, locale fallback chains, strict `{token}` interpolation, coverage tooling | Implemented, tested |
-| `submissions` | Community submissions + review workflow (pending → approved/rejected with reviewer identity) | Implemented, tested |
-| `adapters/react` | React bindings | NOT IMPLEMENTED (planned) |
-| `adapters/neon` | RADARSite-compatible storage adapter | NOT IMPLEMENTED (planned) |
-| `adapters/supabase` | NairaLeap-compatible storage adapter | NOT IMPLEMENTED (planned) |
+| `registry` | Language registry, supported locale resolution, verified-coverage filtering | Implemented and tested; simple language/script/region tags only; unknown CLDR script/region subtags and full BCP-47 extensions are rejected |
+| `data/languages` | Seed records with provenance; Tiv uses ISO 639-3 `tiv` and Glottocode `tivv1240`; Galla/Doma/Gidi remain unverified | Implemented; not a claim of complete Nigerian-language coverage |
+| `translation` | Injected provider contract and exact-match memory | Implemented; provider/cache output is draft; human-approved memory requires host validation |
+| `i18n` | Resource bundles, fallback chains, strict `{token}` interpolation, coverage tooling | Implemented and tested |
+| `submissions` | Community submissions and pending-to-terminal review state | In-memory only; a trusted host authorizer is mandatory for review decisions |
+| React / Neon / Supabase adapters | UI and persistence integration | Not implemented |
 
-## Language data policy
+## Data and review policy
 
-- Only records with validated ISO 639-3 codes and documented classification are `verified`.
-- "Galla" is an obsolete, derogatory exonym for the Oromo (Ethiopia/Kenya), **not** a Nigerian language.
-- "Doma" is a Local Government Area in Nasarawa State, not a documented language.
-- "Gidi" is Nigerian Pidgin slang for Lagos, not a language.
-- These three are kept as `unverified` records with sources and notes so applications can respond honestly, and are never counted as coverage.
-- Machine-generated translations are always drafts pending human review.
+- Only records with validated ISO 639-3 identity and documented provenance are returned as verified coverage.
+- “Galla”, “Doma”, and “Gidi” remain unverified and are never counted as confirmed language coverage.
+- Locale resolver supports a language subtag with optional known script and/or region (for example `yo-NG`, `yo_Latn`, `ig-Latn-NG`). Unknown script/region subtags, variants, and extensions are rejected rather than guessed or silently treated as the base language.
+- Provider results are normalized to `generatedBy: "provider"` and `requiresReview: true`, regardless of provider-supplied flags.
+- Untrusted memory inserts are normalized to `generatedBy: "memory"` and remain review-required. `storeReviewed()` only accepts a human-approved translation when the host-supplied `TranslationReviewValidator` confirms an authenticated editor and durable approval record.
+- Community review decisions fail closed unless a host-supplied `CommunityReviewAuthorizer` validates the reviewer/action. The package itself does not authenticate submitters or reviewers and has no durable audit storage.
 
 ## Development
 
+Runtime source targets Node.js 18+, but the current development/test toolchain (Vitest 4 and ESLint 10) requires Node.js 20.19+; CI uses Node 20.
+
 ```bash
 npm ci
-npm test        # vitest
+npm audit --audit-level=moderate
+npm run lint
 npm run typecheck
+npm test
 npm run build
+npm pack --dry-run
 ```
 
-## Security
+The package metadata currently declares MIT. Confirm that license choice with the owner before any package publication. No package was published as part of this work.
 
-See [SECURITY.md](SECURITY.md). No credentials in code; adapters are optional and must not touch host CMS schemas.
-
-## License
-
-MIT.
+The root entry point and mirrored module subpaths (including `registry`, `locale`, and `data/languages`, with or without an explicit `.js` suffix) are exported for ESM consumers. The package tarball was installed into a clean consumer and those imports were smoke-tested.
