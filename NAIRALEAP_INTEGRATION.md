@@ -24,3 +24,7 @@ No new environment variables or credentials are required for this documentation/
 ## Verification
 
 The NairaLeap Cypress spec asserts English remains selected and all non-English options are disabled. Whole-site localization, glossary behavior, provider integration, and native-speaker review are not implemented or verified.
+
+## CI and lockfile prerequisite
+
+This stacked documentation PR targets `audit/stage-2-quality-gates`, which carries the committed `package-lock.json`. The quality-gate workflow now includes that base branch as a pull-request target so a fresh `npm ci` verification can run against the lockfile.
